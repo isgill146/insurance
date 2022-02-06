@@ -67,24 +67,24 @@ const monthlyPolicyCountBasedOnRegion = async (req) => {
     const { regionID } = req.query;
 
     try {
-
-
-        if (regionID) {
-            const region = await models.region.findByPk(regionID);
-
-            //Check if region exists
-            if (!region) {
-                throw new Error('Invalid Input!')
-            }
-        }
-
-        const policies = await models.policy.findAll({
+        let params = {
             attributes: ['dateOfPurchase',
                 [sequelize.literal(`COUNT(*)`), 'count']
             ],
             group: ['date_of_purchase'],
             order: [['date_of_purchase', 'ASC']]
-        })
+        }
+
+        if (regionID) {
+            const region = await models.region.findByPk(regionID);
+            //Check if region exists
+            if (!region) { throw new Error('Invalid Input!') }
+
+            //Add RegionID to where clause
+            params.where = { regionID };
+        }
+
+        const policies = await models.policy.findAll(params)
 
 
         //Count Month Wise
