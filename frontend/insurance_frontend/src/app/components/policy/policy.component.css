@@ -2,3 +2,36 @@
     display: flex;
     justify-content: flex-end;
 }
+.btn-default{
+    background-color: #673AB7;
+    color:#FFF;
+    border-color: #673AB7;
+ 
+}
+ 
+.btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open .dropdown-toggle.btn-default {
+ 
+    background-color:#FFF;
+    color:#673AB7;
+    border-color: #673AB7;
+}
+
+
+.is-invalid{ 
+    border: 1px solid red !important;
+}
+
+.table-title{
+    color: #3b033d; 
+    margin-top: 3rem;
+}
+
+.header{
+    font-weight: bold; 
+    vertical-align: middle;
+}
+
+#exampleModalLabel{
+    color: #673AB7;
+    font-weight: bold;
+}

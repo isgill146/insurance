@@ -1,6 +1,7 @@
 const { defaultServerResponse } = require('./messages');
 const { errorLog } = require('./loggers');
 
+//Controller builder to call the services
 const controllerBuilder = async ({
     controllerName,
     serviceCall,
@@ -22,7 +23,7 @@ const controllerBuilder = async ({
 };
 
 
-
+//Pagination function to set offset and limit
 const paginate = (page, pageSize) => {
     const offset = page * pageSize;
     const limit = parseInt(pageSize);

@@ -18,6 +18,7 @@ function initiateDatabase() {
         }
     );
 
+    //IIFE
     (async function () {
         try {
             await sequelize.authenticate();
@@ -39,6 +40,8 @@ function initiateDatabase() {
 
 
     sequelize.sync();
+
+    //Run Model seeders (For customer and policy extract data from CSV)
 
     // sequelize.sync({
     //     alter: true,

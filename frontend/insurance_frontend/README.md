@@ -1,5 +1,10 @@
 # InsuranceFrontend
 
+# frontend dir
+cd frontend/insurance_frontend
+# install the dependancies
+npm install
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.2.2.
 
 ## Development server

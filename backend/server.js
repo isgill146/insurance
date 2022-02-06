@@ -26,9 +26,10 @@ app.use(function (err, req, res, next) {
     });
 });
 
+//Inititate Router
 initiateRouter(app, express.Router());
 
-
+//Listen to port
 app.listen(port, () => {
     successLog('PORT OPENED : ', `Server listening on port ${port}`);
 });

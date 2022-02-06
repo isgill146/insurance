@@ -6,10 +6,13 @@ import { PolicyComponent } from './components/policy/policy.component';
 
 const routes: Routes = [
   {
-    path : 'dashboard', component : DashboardComponent
+    path: 'dashboard', component: DashboardComponent
   },
   {
-    path : 'policy', component : PolicyComponent
+    path: 'policy', component: PolicyComponent
+  },
+  {
+    path: '**', redirectTo: 'dashboard', pathMatch: 'full'
   }
 ];
 

@@ -1,45 +1,247 @@
-<div class="container">
-    <div class="row mt-4">
-        <div class="search">
-            <mat-form-field class="example-form-field" appearance="fill">
-                <mat-label>Search here</mat-label>
-                <input matInput type="text" [(ngModel)]="value">
-                <button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
-                    <mat-icon>close</mat-icon>
-                </button>
-            </mat-form-field>
-        </div>
+<div class="row mt-4">
+    <div class="search">
+        <mat-form-field class="example-form-field" appearance="fill">
+            <mat-label>Search by Customer ID/Policy ID</mat-label>
+            <input matInput type="text" [(ngModel)]="search" (ngModelChange)="onSearchChange($event)">
+            <button *ngIf="search" matSuffix mat-icon-button aria-label="Clear" (click)="clearSearch()">
+                <mat-icon>close</mat-icon>
+            </button>
+        </mat-form-field>
     </div>
+</div>
 
-    <div class="row">
-        <div class="table-responsive">
-            <h2 style="color: #3b033d;; float: left; margin-top: 3rem;"> Policy Details</h2>
-            <table class="table table-bordered table-hover text-center">
-                <thead>
-                    <tr class="table-secondary" style="font-weight: bold;">
-                        <th>ID</th>
-                        <th>Pro. Code</th>
-                        <th>Topic</th>
-                        <th>Requester</th>
-                        <th>Approver</th>
-                        <th>Created Date</th>
-                        <th>Updated Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>2</td>
-                        <td>3</td>
-                        <td>4</td>
-                        <td>5</td>
-                        <td>6</td>
-                        <td>7</td>
-                    </tr>
-                </tbody>
-            </table>
-            <mat-paginator pageSize="10" [pageSizeOptions]="[5, 10, 25]">
-            </mat-paginator>
+<div class="row">
+    <div class="table-responsive" *ngIf="policyArray.length>0; else other_content">
+        <h2 class="table-title"> Policy Details</h2>
+        <table class="table table-bordered table-striped table-light text-center">
+            <thead>
+                <tr class="table-secondary header">
+                    <th>Policy ID</th>
+                    <th>Purchase Date</th>
+                    <th>Customer ID</th>
+                    <th>Fuel</th>
+                    <th>Vehicle Segment</th>
+                    <th>Premium</th>
+                    <th>Bodily Injury Liability</th>
+                    <th>Personal Injury Protection</th>
+                    <th>Property Damage Liability</th>
+                    <th>Collision</th>
+                    <th>Comprehensive</th>
+                    <th>Customer Gender</th>
+                    <th>Customer Income Group</th>
+                    <th>Customer Region</th>
+                    <th>Customer Marital Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of policyArray; let i = index">
+                    <td>{{item.policyID}}</td>
+                    <td class="col-md-2">{{item.dateOfPurchase | date}}</td>
+                    <td>{{item.customerID}}</td>
+                    <td>{{item.fuel.type}}</td>
+                    <td>{{item.vehicleSegment}}</td>
+                    <td>{{item.premium}}</td>
+                    <td class="col-md-2">{{item.bodilyInjuryLiability == true ? 'True' :'False'}}</td>
+                    <td class="col-md-1">{{item.personalInjuryProtection == true ? 'True' :'False'}}</td>
+                    <td class="col-md-1">{{item.propertyDamageLiability == true ? 'True' :'False'}}</td>
+                    <td>{{item.collision == true ? 'True' :'False'}}</td>
+                    <td>{{item.comprehensive == true ? 'True' :'False'}}</td>
+                    <td>{{item.customer.gender}}</td>
+                    <td class="col-md-2">{{item.income_group.incomeRange}}</td>
+                    <td>{{item.region.name}}</td>
+                    <td>{{item.customerMaritalStatus == true ? 'True' :'False'}}</td>
+                    <td> <button class="btn btn-sm btn-default" (click)="openUpdateModal(item)"><i
+                                class="fa fa-edit"></i></button></td>
+                </tr>
+            </tbody>
+        </table>
+        <mat-paginator [pageSize]="pageSize" [pageSizeOptions]="[6, 15, 50,100]" (page)="onPaginateChange($event)"
+            [length]="count" [showFirstLastButtons]="true">
+        </mat-paginator>
+    </div>
+    <ng-template #other_content>
+        <div class="justify-content-center">
+            <h3>No Data!</h3>
+            <hr>
+        </div>
+    </ng-template>
+</div>
+
+
+
+
+<!-- Update Modal -->
+<div class="modal" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true"
+    [ngStyle]="{'display':updateDisplay}">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="exampleModalLabel" >Update Policy Details</h3>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="form">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="fieldlabels">Policy ID</label>
+                                <input type="email" class="form-control" formControlName="policyID">
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="fieldlabels">Purchase Date</label>
+                                <input type="text" class="form-control" formControlName="purchaseDate">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="fieldlabels">Customer ID</label>
+                                <input type="email" class="form-control" formControlName="customerID">
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="fieldlabels">Fuel</label>
+                                <mat-select class="form-control" formControlName="fuel">
+                                    <mat-option *ngFor="let item of fuelArray; let i = index" value={{item.type}}>
+                                        {{item.type}}</mat-option>
+                                </mat-select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="fieldlabels">Vehicle Segment</label>
+                                <mat-select class="form-control" formControlName="vehicleSegment">
+                                    <mat-option value="A"> A</mat-option>
+                                    <mat-option value="B"> B</mat-option>
+                                    <mat-option value="C"> C</mat-option>
+                                </mat-select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="fieldlabels">Premium</label>
+                                <input type="text" class="form-control" formControlName="premium"
+                                    [ngClass]="{ 'is-invalid': form.controls['premium'].hasError('max') || form.controls['premium'].hasError('min')||form.controls['premium'].hasError('pattern') }">
+                                <div *ngIf="form.controls['premium'].hasError" class="invalid-feedback">
+                                    <div *ngIf="form.controls['premium'].hasError('max')">Premium Cannot be greater than
+                                        1million
+                                    </div>
+                                    <div *ngIf="form.controls['premium'].hasError('min')">Premium Cannot be negative
+                                    </div>
+                                    <div *ngIf="form.controls['premium'].hasError('pattern')">Only Numbers are allowed
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="fieldlabels">Bodily Injury Liability</label>
+                                <mat-select class="form-control" formControlName="bodilyInjuryLiability">
+                                    <mat-option value="true"> True</mat-option>
+                                    <mat-option value="false"> False</mat-option>
+                                </mat-select>
+
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="fieldlabels">Personal Injury Protection</label>
+                                <mat-select class="form-control" formControlName="personalInjuryProtection">
+                                    <mat-option value="true"> True</mat-option>
+                                    <mat-option value="false"> False</mat-option>
+                                </mat-select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="fieldlabels">Property Damage Liability</label>
+                                <mat-select class="form-control" formControlName="propertyDamageLiability">
+                                    <mat-option value="true"> True</mat-option>
+                                    <mat-option value="false"> False</mat-option>
+                                </mat-select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="fieldlabels">Collision</label>
+                                <mat-select class="form-control" formControlName="collision">
+                                    <mat-option value="true"> True</mat-option>
+                                    <mat-option value="false"> False</mat-option>
+                                </mat-select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="fieldlabels">Comprehensive</label>
+                                <mat-select class="form-control" formControlName="comprehensive">
+                                    <mat-option value="true"> True</mat-option>
+                                    <mat-option value="false"> False</mat-option>
+                                </mat-select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="fieldlabels">Customer Gender</label>
+                                <mat-select class="form-control" formControlName="gender">
+                                    <mat-option value="Male"> Male</mat-option>
+                                    <mat-option value="Female"> Female</mat-option>
+                                </mat-select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="fieldlabels">Customer Income Group</label>
+                                <mat-select class="form-control" formControlName="incomeRange">
+                                    <mat-option *ngFor="let item of incomeGroups; let i = index"
+                                        value={{item.incomeRange}}>
+                                        {{item.incomeRange}}</mat-option>
+                                </mat-select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="fieldlabels">Customer Region</label>
+                                <mat-select class="form-control" formControlName="region">
+                                    <mat-option *ngFor="let item of regions; let i = index" value={{item.name}}>
+                                        {{item.name}}</mat-option>
+                                </mat-select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="fieldlabels">Customer Marital Status</label>
+                                <mat-select class="form-control" formControlName="customerMaritalStatus">
+                                    <mat-option value="true"> True</mat-option>
+                                    <mat-option value="false"> False</mat-option>
+                                </mat-select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-dismiss="modal"
+                    (click)="onCloseUpdateHandled()">Close</button>
+                <button type="submit" class="btn btn-sm btn-outline-success" (click)="updatePolicy()">Update</button>
+            </div>
         </div>
     </div>
 </div>

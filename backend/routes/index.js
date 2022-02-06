@@ -1,6 +1,8 @@
 const express = require('express');
 const policyRoutes = require('./policy');
 const regionRoutes = require('./region');
+const fuelRoutes = require('./fuel');
+const incomeGroupRoutes = require('./income_group');
 
 module.exports = (app) => {
     const routes = [
@@ -11,6 +13,14 @@ module.exports = (app) => {
         {
             basePath: `${process.env.BASE_PATH}/region`,
             routes: regionRoutes
+        },
+        {
+            basePath: `${process.env.BASE_PATH}/fuel`,
+            routes: fuelRoutes
+        },
+        {
+            basePath: `${process.env.BASE_PATH}/income-group`,
+            routes: incomeGroupRoutes
         }
     ];
 

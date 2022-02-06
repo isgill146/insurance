@@ -9,6 +9,7 @@ const moment = require('moment');
 const getAndSearchPolicyList = async (req) => {
     const { pageIndex, pageSize, search } = req.query;
 
+    //Validate pageIndex and pageSize
     if (!(pageIndex && pageSize) || (pageIndex < 0 && pageSize < 1)) {
         throw new Error("Invalid PageIndex and PageSize");
     }
@@ -37,7 +38,7 @@ const getAndSearchPolicyList = async (req) => {
                 }
             ],
             ...paginate(pageIndex, pageSize),
-            order: [['premium', 'DESC']]
+            order: [['dateOfPurchase', 'ASC']]
         }
 
         //Search Either By CustomerID or PolicyID
@@ -63,8 +64,9 @@ const getAndSearchPolicyList = async (req) => {
 }
 
 
+//Get Monthly Policy Count based on Region selected. By Default return response for all the regions.
 const monthlyPolicyCountBasedOnRegion = async (req) => {
-    const { regionID } = req.query;
+    const { regionName } = req.query;
 
     try {
         let params = {
@@ -75,24 +77,28 @@ const monthlyPolicyCountBasedOnRegion = async (req) => {
             order: [['date_of_purchase', 'ASC']]
         }
 
-        if (regionID) {
-            const region = await models.region.findByPk(regionID);
-            //Check if region exists
+        //If region name exists
+        if (regionName && regionName !== 'All') {
+            const region = await models.region.findOne({ where: { name: regionName } });
+            //Check if region exists in db
             if (!region) { throw new Error('Invalid Input!') }
 
             //Add RegionID to where clause
-            params.where = { regionID };
+            params.where = { regionID: region.regionID };
         }
 
         const policies = await models.policy.findAll(params)
 
 
-        //Count Month Wise
+        //Count Month Wise policies
+
+        //store month and count in hashtable
         let monthlyCountObject = {};
 
         policies.map((policy) => {
             var check = moment(policy.dateOfPurchase, 'YYYY/MM/DD');
 
+            //Get Month based on date
             var month = check.format('MMMM');
 
             if (monthlyCountObject[month] != null) {
@@ -101,7 +107,6 @@ const monthlyPolicyCountBasedOnRegion = async (req) => {
                 monthlyCountObject[month] = policy.dataValues.count;
             }
         });
-
 
         return { monthlyCountObject }
     } catch (e) {
@@ -123,9 +128,9 @@ const updatePolicy = async (req) => {
         collision,
         comprehensive,
         customerMaritalStatus,
-        fuelID,
-        regionID,
-        incomeGroupID } = req.body;
+        fuel,
+        region,
+        incomeRange } = req.body;
 
     try {
         //Check if Policy Exist
@@ -136,14 +141,38 @@ const updatePolicy = async (req) => {
 
         //Check if premium more than 1million
         if (premium) {
-            if (premium > 100000) {
+            if (premium < 0) {
+                throw new Error('Premium cannot be negative!')
+            }
+            else if (premium > 1000000) {
                 throw new Error('Premium Cannot be more than 1 million!')
             }
         }
 
+        //Check if fuel, region or incomeGroup exists and update policy accordingly
+        let fuelID, regionID, incomeGroupID;
+        if (fuel) {
+            const fuelExist = await models.fuel.findOne({ where: { type: fuel } });
+            if (!fuel) { throw new Error('Not Found!') }
+            fuelID = fuelExist.fuelID;
+        }
+
+        if (region) {
+            const regionExist = await models.region.findOne({ where: { name: region } });
+            if (!regionExist) { throw new Error('Not Found!') }
+            regionID = regionExist.regionID;
+        }
+
+        if (incomeRange) {
+            const incomeRangeExist = await models.income_group.findOne({ where: { incomeRange } });
+            if (!incomeRangeExist) { throw new Error('Not Found!') }
+            incomeGroupID = incomeRangeExist.incomeGroupID;
+        }
+
+        //Update Policy Based on incoming request
         const updatedPolicy = await ifPolicyExist.update({
             vehicleSegment: vehicleSegment ? vehicleSegment : ifPolicyExist.vehicleSegment,
-            premium: premium > 0 ? premium : ifPolicyExist.premium,
+            premium: premium != null ? premium : ifPolicyExist.premium,
             bodilyInjuryLiability: bodilyInjuryLiability != null ? bodilyInjuryLiability : ifPolicyExist.bodilyInjuryLiability,
             personalInjuryProtection: personalInjuryProtection != null ? personalInjuryProtection : ifPolicyExist.personalInjuryProtection,
             propertyDamageLiability: propertyDamageLiability != null ? propertyDamageLiability : ifPolicyExist.propertyDamageLiability,
