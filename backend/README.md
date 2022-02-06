@@ -1,6 +1,4 @@
-# insurance
-
-# 1. backend
+# insurance_backend
 
 <ul>
   <li><a href='https://nodejs.org/en/'>Node.js</a>: backend framework;</li>
@@ -14,9 +12,6 @@
 to start working with the project just :
 
 ```sh
-
-# backend dir
-cd backend
 # install the dependancies
 npm install
 #Create your .env file // refer the the evironment variables block
